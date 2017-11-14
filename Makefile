@@ -43,7 +43,7 @@ vet:
 	@go vet $(shell go list ./... | grep -v '/vendor/')
 
 fmt:
-	@./scripts/gofmt $(shell go list ./... | grep -v '/vendor/')
+	@go fmt $(shell go list ./... | grep -v '/vendor/')
 
 lint:
 	@for package in $(shell go list ./... | grep -v '/vendor/' | grep -v '/api' | grep -v '/server/internal'); do \

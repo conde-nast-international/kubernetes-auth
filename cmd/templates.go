@@ -6,27 +6,6 @@ import (
 	"net/http"
 )
 
-var indexTmpl = template.Must(template.New("index.html").Parse(`<html>
-  <body>
-    <form action="/login" method="post">
-       <p>
-         Authenticate for:<input type="text" name="cross_client" placeholder="list of client-ids">
-       </p>
-       <p>
-         Extra scopes:<input type="text" name="extra_scopes" placeholder="list of scopes">
-       </p>
-	   <p>
-	     Request offline access:<input type="checkbox" name="offline_access" value="yes" checked>
-       </p>
-       <input type="submit" value="Login">
-    </form>
-  </body>
-</html>`))
-
-func renderIndex(w http.ResponseWriter) {
-	renderTemplate(w, indexTmpl, nil)
-}
-
 type tokenTmplData struct {
 	IDToken      string
 	RefreshToken string

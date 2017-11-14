@@ -23,7 +23,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const exampleAppState = "I wish to wash my irish wristwatch"
+const authenticationState = "authenticated"
 
 type app struct {
 	clientID     string
@@ -100,8 +100,8 @@ func cmd() *cobra.Command {
 		debug     bool
 	)
 	c := cobra.Command{
-		Use:   "example-app",
-		Short: "An example OpenID Connect client",
+		Use:   "k8s-auth",
+		Short: "Login to your Kubernetes clusters with github",
 		Long:  "",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 0 {
@@ -176,8 +176,7 @@ func cmd() *cobra.Command {
 			a.provider = provider
 			a.verifier = provider.Verifier(&oidc.Config{ClientID: a.clientID})
 
-			http.HandleFunc("/", a.handleIndex)
-			http.HandleFunc("/login", a.handleLogin)
+			http.HandleFunc("/", a.handleLogin)
 			http.HandleFunc(u.Path, a.handleCallback)
 
 			switch listenURL.Scheme {
@@ -192,10 +191,10 @@ func cmd() *cobra.Command {
 			}
 		},
 	}
-	c.Flags().StringVar(&a.clientID, "client-id", "example-app", "OAuth2 client ID of this application.")
+	c.Flags().StringVar(&a.clientID, "client-id", "k8s-auth", "OAuth2 client ID of this application.")
 	c.Flags().StringVar(&a.clientSecret, "client-secret", "ZXhhbXBsZS1hcHAtc2VjcmV0", "OAuth2 client secret of this application.")
-	c.Flags().StringVar(&a.redirectURI, "redirect-uri", "https://dex.sandbox.cni.digital/callback", "Callback URL for OAuth2 responses.")
-	c.Flags().StringVar(&issuerURL, "issuer", "https://dex.sandbox.cni.digital", "URL of the OpenID Connect issuer.")
+	c.Flags().StringVar(&a.redirectURI, "redirect-uri", "http://127.0.0.1:5555", "Callback URL for OAuth2 responses.")
+	c.Flags().StringVar(&issuerURL, "issuer", "https://dex.example.com", "URL of the OpenID Connect issuer.")
 	c.Flags().StringVar(&listen, "listen", "http://127.0.0.1:5555", "HTTP(S) address to listen at.")
 	c.Flags().StringVar(&tlsCert, "tls-cert", "", "X509 cert file to present when serving HTTPS.")
 	c.Flags().StringVar(&tlsKey, "tls-key", "", "Private key for the HTTPS cert.")
@@ -209,10 +208,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(2)
 	}
-}
-
-func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) {
-	renderIndex(w)
 }
 
 func (a *app) oauth2Config(scopes []string) *oauth2.Config {
@@ -241,12 +236,12 @@ func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {
 	authCodeURL := ""
 	scopes = append(scopes, "openid", "profile", "email")
 	if r.FormValue("offline_access") != "yes" {
-		authCodeURL = a.oauth2Config(scopes).AuthCodeURL(exampleAppState)
+		authCodeURL = a.oauth2Config(scopes).AuthCodeURL(authenticationState)
 	} else if a.offlineAsScope {
 		scopes = append(scopes, "offline_access")
-		authCodeURL = a.oauth2Config(scopes).AuthCodeURL(exampleAppState)
+		authCodeURL = a.oauth2Config(scopes).AuthCodeURL(authenticationState)
 	} else {
-		authCodeURL = a.oauth2Config(scopes).AuthCodeURL(exampleAppState, oauth2.AccessTypeOffline)
+		authCodeURL = a.oauth2Config(scopes).AuthCodeURL(authenticationState, oauth2.AccessTypeOffline)
 	}
 
 	http.Redirect(w, r, authCodeURL, http.StatusSeeOther)
@@ -272,8 +267,8 @@ func (a *app) handleCallback(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("no code in request: %q", r.Form), http.StatusBadRequest)
 			return
 		}
-		if state := r.FormValue("state"); state != exampleAppState {
-			http.Error(w, fmt.Sprintf("expected state %q got %q", exampleAppState, state), http.StatusBadRequest)
+		if state := r.FormValue("state"); state != authenticationState {
+			http.Error(w, fmt.Sprintf("expected state %q got %q", authenticationState, state), http.StatusBadRequest)
 			return
 		}
 		token, err = oauth2Config.Exchange(ctx, code)

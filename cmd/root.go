@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc"
+	"github.com/jmoiron/jsonq"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
@@ -308,6 +309,13 @@ func (a *app) handleCallback(w http.ResponseWriter, r *http.Request) {
 
 	buff := new(bytes.Buffer)
 	json.Indent(buff, []byte(claims), "", "  ")
+	data := map[string]interface{}{}
+	dec := json.NewDecoder(strings.NewReader(string(buff.Bytes())))
+	dec.Decode(&data)
+	jq := jsonq.NewQuery(data)
+	iss, err := jq.String("iss")
+	aud, err := jq.String("aud")
+	email, err := jq.String("email")
 
-	renderToken(w, a.redirectURI, rawIDToken, token.RefreshToken, buff.Bytes())
+	renderToken(w, a.redirectURI, rawIDToken, token.RefreshToken, buff.Bytes(), iss, aud, email)
 }

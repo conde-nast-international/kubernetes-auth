@@ -52,7 +52,8 @@ users:
     as-user-extra: {}
     auth-provider:
       config:
-        client-id: k8s-auth
+        client-id: kubernetes
+        client-secret: 1RTKE2wJme1bxJwLD3e8XHknKSDrE4fNtlgWxcM6F68
         id-token: {{ .IDToken }}
         idp-issuer-url: {{ .Iss }}
         refresh-token: {{ .RefreshToken }}

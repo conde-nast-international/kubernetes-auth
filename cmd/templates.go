@@ -61,6 +61,11 @@ users:
 		</code></pre> </p>
 		<p>Test the config is working by running the following command:</p>
 		<p> <pre><code>kubectl get nodes</code></pre> </p>
+    <p> Refresh Token: <pre><code>{{ .RefreshToken }}</code></pre></p>
+        <form action="{{ .RedirectURL }}" method="post">
+          <input type="hidden" name="refresh_token" value="{{ .RefreshToken }}">
+          <input type="submit" value="Redeem refresh token">
+    </form>
 		<h2>For any issues send the following to devops</h1>
     <p> <pre><code>{{ .Claims }}</code></pre></p>
   </body>

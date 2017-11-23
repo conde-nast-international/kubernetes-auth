@@ -90,16 +90,21 @@ func (d debugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return resp, nil
 }
 
+var (
+	a             app
+	issuerURL     string
+	listen        string
+	tlsCert       string
+	tlsKey        string
+	rootCAs       string
+	cluster       string
+	apiServer     string
+	kclientId     string
+	kclientSecret string
+	debug         bool
+)
+
 func cmd() *cobra.Command {
-	var (
-		a         app
-		issuerURL string
-		listen    string
-		tlsCert   string
-		tlsKey    string
-		rootCAs   string
-		debug     bool
-	)
 	c := cobra.Command{
 		Use:   "k8s-auth",
 		Short: "Login to your Kubernetes clusters with github",
@@ -177,7 +182,8 @@ func cmd() *cobra.Command {
 			a.provider = provider
 			a.verifier = provider.Verifier(&oidc.Config{ClientID: a.clientID})
 
-			http.HandleFunc("/", a.handleLogin)
+			http.HandleFunc("/", a.handleIndex)
+			http.HandleFunc("/login", a.handleLogin)
 			http.HandleFunc(u.Path, a.handleCallback)
 
 			switch listenURL.Scheme {
@@ -201,6 +207,11 @@ func cmd() *cobra.Command {
 	c.Flags().StringVar(&tlsKey, "tls-key", "", "Private key for the HTTPS cert.")
 	c.Flags().StringVar(&rootCAs, "issuer-root-ca", "", "Root certificate authorities for the issuer. Defaults to host certs.")
 	c.Flags().BoolVar(&debug, "debug", false, "Print all request and responses from the OpenID Connect issuer.")
+
+	c.Flags().StringVar(&cluster, "cluster", "kubernetes", "Name of the cluster which this deployment belongs to")
+	c.Flags().StringVar(&apiServer, "api-server", "api.kuberenetes.domain", "The API Host of the Cluster")
+	c.Flags().StringVar(&kclientId, "kubernetes-client-id", "k8s-auth", "The Client ID used in communication with dex")
+	c.Flags().StringVar(&kclientSecret, "kubernetes-client-secret", "ZXhhbXBsZS1hcHAtc2VjcmV0", "The Client Secret used in communication with dex")
 	return &c
 }
 
@@ -219,6 +230,10 @@ func (a *app) oauth2Config(scopes []string) *oauth2.Config {
 		Scopes:       scopes,
 		RedirectURL:  a.redirectURI,
 	}
+}
+
+func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) {
+	renderIndex(w)
 }
 
 func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {

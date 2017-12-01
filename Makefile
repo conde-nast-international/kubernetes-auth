@@ -3,7 +3,7 @@ ORG_PATH=github.com/conde-nast-international
 REPO_PATH=$(ORG_PATH)/$(PROJ)
 export PATH := $(PWD)/bin:$(PATH)
 
-VERSION ?= '1.1.9'
+VERSION ?= '1.1.10'
 
 DOCKER_REPO=quay.io/condenastinternational/k8s-auth
 DOCKER_IMAGE=$(DOCKER_REPO):$(VERSION)

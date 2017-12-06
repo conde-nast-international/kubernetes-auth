@@ -11,6 +11,5 @@ RUN apk add --update ca-certificates openssl
 WORKDIR /go/src/github.com/conde-nast-international/k8s-auth
 COPY --from=0 /go/src/github.com/conde-nast-international/k8s-auth/bin/k8s-auth /usr/local/bin/k8s-auth
 WORKDIR /
-ADD https://letsencrypt.org/certs/fakelerootx1.pem .
 
 ENTRYPOINT ["k8s-auth"]

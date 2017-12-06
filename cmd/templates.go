@@ -54,6 +54,8 @@ pre {
 				--auth-provider-arg=idp-issuer-url={{ .Iss }} \
 				--auth-provider-arg=refresh-token={{ .RefreshToken }}
 
+		$ kubectl config use-context {{ .Cluster }}
+
 		</code></pre> </p>
 		<p>Test the config is working by running the following command:</p>
 		<p> <pre><code>kubectl get nodes</code></pre> </p>

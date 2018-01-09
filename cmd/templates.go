@@ -56,9 +56,11 @@ pre {
 
 		$ kubectl config use-context {{ .Cluster }}
 
+		$ kubectl config set-context $(kubectl config current-context) --namespace=<one of "migrations, copilot, front-row, rocket">
+
 		</code></pre> </p>
-		<p>Test the config is working by running the following command:</p>
-		<p> <pre><code>kubectl get nodes</code></pre> </p>
+		<p>Test the config is working by running the following command, and seeing the output "No resources found.":</p>
+		<p> <pre><code>kubectl get pods</code></pre> </p>
     <p> Refresh Token: <pre><code>{{ .RefreshToken }}</code></pre></p>
         <form action="{{ .RedirectURL }}" method="post">
           <input type="hidden" name="refresh_token" value="{{ .RefreshToken }}">

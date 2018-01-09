@@ -183,6 +183,7 @@ func cmd() *cobra.Command {
 			a.verifier = provider.Verifier(&oidc.Config{ClientID: a.clientID})
 
 			http.HandleFunc("/", a.handleIndex)
+			http.HandleFunc("/healthz", a.healthz)
 			http.HandleFunc("/login", a.handleLogin)
 			http.HandleFunc(u.Path, a.handleCallback)
 
@@ -234,6 +235,10 @@ func (a *app) oauth2Config(scopes []string) *oauth2.Config {
 
 func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) {
 	renderIndex(w)
+}
+
+func (a *app) healthz(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("We are running captain!.\n"))
 }
 
 func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {

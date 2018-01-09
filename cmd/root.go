@@ -238,7 +238,7 @@ func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) healthz(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("We are running captain!.\n"))
+	w.Write([]byte("We are running captain!\n"))
 }
 
 func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {

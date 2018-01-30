@@ -1,0 +1,38 @@
+env: &env
+  environment:
+    - PROJECT_NAME=k8s-auth
+
+build: &build
+  working_directory: ~/tmp
+  docker:
+    - image: docker:stable-git
+  <<: *env
+
+version: 2
+jobs:
+  build_and_push:
+    <<: *build
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build image
+          command: |
+            docker build -t $PROJECT_NAME .
+      - deploy:
+          name: Push image to quay.io
+          working_directory: infrastructure
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" -o "${CIRCLE_BRANCH}" == "develop" ]; then
+              docker login -u="condenastinternational+circleci" -p="${DOCKER_TOKEN}" quay.io
+              docker tag $PROJECT_NAME quay.io/condenastinternational/$PROJECT_NAME:$CIRCLE_SHA1
+              docker tag $PROJECT_NAME quay.io/condenastinternational/$PROJECT_NAME:latest
+              docker push quay.io/condenastinternational/$PROJECT_NAME:$CIRCLE_SHA1
+              docker push quay.io/condenastinternational/$PROJECT_NAME:latest
+            fi
+
+workflows:
+  version: 2
+  test_and_build:
+    jobs:
+      - build_and_push

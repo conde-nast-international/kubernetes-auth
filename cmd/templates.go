@@ -37,30 +37,25 @@ pre {
   <body>
 		<h1>Run the following command to set your credentials for this environment</h1>
 		<p> <pre><code>
-
-		$ kubectl config set-cluster {{ .Cluster }} \
-				--server={{ .ApiServer }} \
-				--insecure-skip-tls-verify=true
-
-		$ kubectl config set-context {{ .Cluster }} \
-				--cluster={{ .Cluster }} \
-				--namespace={{ .Group }} \
-				--user={{ .Email }}-{{ .Cluster }}
-
-		$ kubectl config set-credentials {{ .Email }}-{{ .Cluster }} --auth-provider=oidc \
-				--auth-provider-arg=client-id={{ .KclientID }} \
-				--auth-provider-arg=client-secret={{ .KclientSecret }} \
-				--auth-provider-arg=id-token={{ .IDToken }} \
-				--auth-provider-arg=idp-issuer-url={{ .Iss }} \
-				--auth-provider-arg=refresh-token={{ .RefreshToken }}
-
-		$ kubectl config use-context {{ .Cluster }}
-
-		$ kubectl config set-context $(kubectl config current-context) --namespace=&lt;one of migrations, copilot, front-row, rocket&gt;
-
+kubectl config set-cluster {{ .Cluster }} \
+    --server={{ .ApiServer }} \
+    --insecure-skip-tls-verify=true
+kubectl config set-context {{ .Cluster }} \
+    --cluster={{ .Cluster }} \
+    --namespace={{ .Group }} \
+    --user={{ .Email }}-{{ .Cluster }}
+kubectl config set-credentials {{ .Email }}-{{ .Cluster }} --auth-provider=oidc \
+    --auth-provider-arg=client-id={{ .KclientID }} \
+    --auth-provider-arg=client-secret={{ .KclientSecret }} \
+    --auth-provider-arg=id-token={{ .IDToken }} \
+    --auth-provider-arg=idp-issuer-url={{ .Iss }} \
+    --auth-provider-arg=refresh-token={{ .RefreshToken }}
+kubectl config use-context {{ .Cluster }}
+kubectl config set-context $(kubectl config current-context) --namespace=&lt;one of migrations, copilot, front-row, rocket&gt;
 		</code></pre> </p>
-		<p>Test the config is working by running the following command, and seeing the output "No resources found.":</p>
+		<p>Test the config is working by running the following command, and seeing the output doesn't produce an authorization error such as "No resources found.":</p>
 		<p> <pre><code>kubectl get pods</code></pre> </p>
+		<h2> Debug Information for Infrastructure </h2>
     <p> Refresh Token: <pre><code>{{ .RefreshToken }}</code></pre></p>
         <form action="{{ .RedirectURL }}" method="post">
           <input type="hidden" name="refresh_token" value="{{ .RefreshToken }}">
